@@ -1,27 +1,36 @@
 package com.azurebird
 
 import com.azurebird.spark.SparkTwitterBase
+import com.azurebird.stream.{Producer, TwitterProducer}
 import org.apache.spark.streaming.Seconds
+import org.apache.spark.streaming.twitter.TwitterUtils
 
-class TwitterConsumer extends Consumer {
+object TwitterConsumer extends Consumer {
 
-  val sparkTwitter = SparkTwitterBase.instanceTwitterStream()
+  private val sparkTwitter = SparkTwitterBase.instanceTwitterStream()
 
-  override def consume(): Unit = {
+  private val producer: TwitterProducer = new TwitterProducer()
 
-    val colombianTweets = sparkTwitter.filter(tweet => tweet.getPlace.getCountry.equals("Colombia"))
+  override def startConsuming(): Unit = {
 
-    val statuses = sparkTwitter.map(status => status.getText())
+    val sortedTopHashtags = TwitterUtils.createStream(sparkTwitter, None)
+      .map(_.getText)
+      .flatMap(_.split(" "))
+      .filter(_.startsWith("#"))
+      .map((_, 1))
+      .reduceByKeyAndWindow(_+_, _-_, Seconds(300), Seconds(1))
+      .transform(_.sortBy(_._2, ascending = false))
 
-    // Blow out each word into a new DStream
-    val tweetwords = statuses.flatMap(tweetText => tweetText.split(" "))
+    sortedTopHashtags.foreachRDD { rdd =>
+      rdd.foreachPartition { partitionOfRecords =>
+        producer.initProducer()
+        partitionOfRecords.foreach(record => producer.publish(record))
+        producer.closeProducer()
+      }
+    }
 
-    // Now eliminate anything that's not a hashtag
-    val hashtags = tweetwords.filter(word => word.startsWith("#"))
-
-    // Map each hashtag to a key/value pair of (hashtag, 1) so we can count them up by adding up the values
-    val hashtagKeyValues = hashtags.map(hashtag => (hashtag, 1))
-
-    val hashtagCounts = hashtagKeyValues.reduceByKeyAndWindow( (x,y) => x + y, (x,y) => x - y, Seconds(300), Seconds(1))
+    sparkTwitter.checkpoint("/Users/azurebird/git/spark-scala/twitter/")
+    sparkTwitter.start()
+    sparkTwitter.awaitTermination()
   }
 }

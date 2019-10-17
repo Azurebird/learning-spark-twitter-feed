@@ -10,14 +10,13 @@ import twitter4j.Status
   */
 object SparkTwitterBase {
 
-  var twitterStream: ReceiverInputDStream[Status] = _
+  var twitterStream: StreamingContext = _
 
-  def instanceTwitterStream(): ReceiverInputDStream[Status] = {
+  def instanceTwitterStream(): StreamingContext = {
     if (twitterStream != null) return twitterStream
 
     setupTwitter()
-    val ssc = new StreamingContext("local[*]", "TwitterStreaming", Seconds(1))
-    twitterStream = TwitterUtils.createStream(ssc, None)
+    twitterStream = new StreamingContext("local[*]", "TwitterStreaming", Seconds(1))
     twitterStream
   }
 
