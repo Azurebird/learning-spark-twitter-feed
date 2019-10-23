@@ -17,6 +17,9 @@ libraryDependencies ++= Seq(
   "org.twitter4j" % "twitter4j-stream" % "4.0.4",
 
   // Kafka
-  "org.apache.kafka" %% "kafka" % "2.3.0"
+  "org.apache.kafka" %% "kafka" % "2.3.0",
+
+  // Others
+  "com.google.code.gson" % "gson" % "2.8.6"
 )
 

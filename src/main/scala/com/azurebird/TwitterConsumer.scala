@@ -1,7 +1,8 @@
 package com.azurebird
 
 import com.azurebird.spark.SparkTwitterBase
-import com.azurebird.stream.{Producer, TwitterProducer}
+import com.azurebird.stream.TwitterProducer
+import com.azurebird.twitter.HashTag
 import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.twitter.TwitterUtils
 
@@ -22,14 +23,13 @@ object TwitterConsumer extends Consumer {
       .transform(_.sortBy(_._2, ascending = false))
 
     sortedTopHashtags.foreachRDD { rdd =>
-      rdd.foreachPartition { partitionOfRecords =>
-        producer.initProducer()
-        partitionOfRecords.foreach(record => producer.publish(record))
-        producer.closeProducer()
-      }
+      val tenFirsts = rdd.take(10).map(record => new HashTag(record._1, record._2))
+      producer.initProducer()
+      producer.publish(tenFirsts)
+      producer.closeProducer()
     }
 
-    sparkTwitter.checkpoint("/Users/azurebird/git/spark-scala/twitter/")
+    sparkTwitter.checkpoint("tweets")
     sparkTwitter.start()
     sparkTwitter.awaitTermination()
   }
