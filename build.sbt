@@ -2,15 +2,15 @@ name := "spark_twitter_feed"
 
 version := "0.1"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.11.0"
 
 libraryDependencies ++= Seq(
   
   // Spark
-  "org.apache.spark" % "spark-core_2.12" % "2.4.4",
-  "org.apache.spark" % "spark-streaming_2.12" % "2.4.4",
+  "org.apache.spark" % "spark-core_2.11" % "2.4.3" % "provided",
+  "org.apache.spark" % "spark-streaming_2.11" % "2.4.3" % "provided",
   "org.apache.bahir" %% "spark-streaming-twitter" % "2.4.0",
-  "org.apache.spark" % "spark-streaming-kafka-0-10_2.12" % "2.4.4",
+  "org.apache.spark" % "spark-streaming-kafka-0-10_2.11" % "2.4.3" % "provided",
 
   //twitter streaming
   "org.twitter4j" % "twitter4j-core" % "4.0.4",
@@ -23,3 +23,9 @@ libraryDependencies ++= Seq(
   "com.google.code.gson" % "gson" % "2.8.6"
 )
 
+assemblyMergeStrategy in assembly := {
+  case PathList("org", "apache", xs @ _*) => MergeStrategy.last
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}

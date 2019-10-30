@@ -8,6 +8,7 @@ object AppMain {
   private def setupLogging(): Unit = {
     import org.apache.log4j.{Level, Logger}
     Logger.getLogger("org").setLevel(Level.ERROR)
+    Logger.getLogger("com.azurebird").setLevel(Level.DEBUG)
   }
 
   def main(args: Array[String]): Unit = {

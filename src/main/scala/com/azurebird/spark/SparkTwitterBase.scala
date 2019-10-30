@@ -1,5 +1,6 @@
 package com.azurebird.spark
 
+import org.apache.spark.SparkConf
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.twitter.TwitterUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
@@ -16,7 +17,9 @@ object SparkTwitterBase {
     if (twitterStream != null) return twitterStream
 
     setupTwitter()
-    twitterStream = new StreamingContext("local[*]", "TwitterStreaming", Seconds(1))
+    val conf = new SparkConf()
+    conf.setAppName("TwitterStreaming")
+    twitterStream = new StreamingContext(conf, Seconds(1))
     twitterStream
   }
 
@@ -24,7 +27,7 @@ object SparkTwitterBase {
   private def setupTwitter(): Unit = {
     import scala.io.Source
 
-    val file = Source.fromFile(getClass.getResource("/twitter.txt").getPath)
+    val file = Source.fromInputStream(getClass.getResourceAsStream("/twitter.txt"))
 
     try {
       file.getLines()
