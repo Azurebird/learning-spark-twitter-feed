@@ -1,6 +1,5 @@
 package com.azurebird.spark
 
-import org.apache.spark.SparkConf
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.twitter.TwitterUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
@@ -17,9 +16,7 @@ object SparkTwitterBase {
     if (twitterStream != null) return twitterStream
 
     setupTwitter()
-    val conf = new SparkConf()
-    conf.setAppName("TwitterStreaming")
-    twitterStream = new StreamingContext(conf, Seconds(1))
+    twitterStream = new StreamingContext("local[*]", "TwitterStreaming", Seconds(1))
     twitterStream
   }
 

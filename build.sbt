@@ -7,10 +7,10 @@ scalaVersion := "2.11.0"
 libraryDependencies ++= Seq(
   
   // Spark
-  "org.apache.spark" % "spark-core_2.11" % "2.4.3" % "provided",
-  "org.apache.spark" % "spark-streaming_2.11" % "2.4.3" % "provided",
+  "org.apache.spark" % "spark-core_2.11" % "2.4.3",
+  "org.apache.spark" % "spark-streaming_2.11" % "2.4.3",
   "org.apache.bahir" %% "spark-streaming-twitter" % "2.4.0",
-  "org.apache.spark" % "spark-streaming-kafka-0-10_2.11" % "2.4.3" % "provided",
+  "org.apache.spark" % "spark-streaming-kafka-0-10_2.11" % "2.4.3",
 
   //twitter streaming
   "org.twitter4j" % "twitter4j-core" % "4.0.4",
